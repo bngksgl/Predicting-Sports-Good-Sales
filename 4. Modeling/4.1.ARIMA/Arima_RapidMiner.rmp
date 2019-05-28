@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="8.1.001">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="8.1.001" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="retrieve" compatibility="8.1.001" expanded="true" height="68" name="Retrieve dataset7" width="90" x="45" y="85">
+        <parameter key="repository_entry" value="../data/dataset7"/>
+      </operator>
+      <operator activated="true" class="series:moving_average" compatibility="7.4.000" expanded="true" height="82" name="Moving Average" width="90" x="179" y="85">
+        <parameter key="attribute_name" value="units"/>
+        <parameter key="window_width" value="5"/>
+        <parameter key="aggregation_function" value="average"/>
+        <parameter key="ignore_missings" value="false"/>
+        <parameter key="result_position" value="end"/>
+        <parameter key="window_weighting" value="Rectangular"/>
+        <parameter key="keep_original_attribute" value="true"/>
+      </operator>
+      <operator activated="true" class="timeseries:arima_trainer" compatibility="0.1.002" expanded="true" height="103" name="ARIMA Trainer" width="90" x="380" y="85">
+        <parameter key="time_series_attribute" value="units"/>
+        <parameter key="has_indices" value="false"/>
+        <parameter key="indices_attribute" value=""/>
+        <parameter key="p:_order_of_the_autoregressive_model" value="1"/>
+        <parameter key="d:_degree_of_differencing" value="0"/>
+        <parameter key="q:_order_of_the_moving-average_model" value="1"/>
+        <parameter key="estimate_constant" value="true"/>
+      </operator>
+      <operator activated="true" class="timeseries:apply_forecast" compatibility="0.1.002" expanded="true" height="82" name="Apply Forecast" width="90" x="514" y="85">
+        <parameter key="forecast_horizon" value="31"/>
+        <parameter key="forecast_only" value="true"/>
+        <parameter key="add_combined_output" value="true"/>
+      </operator>
+      <operator activated="true" class="write_csv" compatibility="8.1.001" expanded="true" height="82" name="Write CSV" width="90" x="648" y="85">
+        <parameter key="csv_file" value="C:\Users\D072726\Documents\Uni3\DM2\DMC 2018\dataset6_pred_units.csv"/>
+        <parameter key="column_separator" value=";"/>
+        <parameter key="write_attribute_names" value="true"/>
+        <parameter key="quote_nominal_values" value="true"/>
+        <parameter key="format_date_attributes" value="true"/>
+        <parameter key="append_to_file" value="false"/>
+        <parameter key="encoding" value="SYSTEM"/>
+      </operator>
+      <connect from_op="Retrieve dataset7" from_port="output" to_op="Moving Average" to_port="example set input"/>
+      <connect from_op="Moving Average" from_port="example set output" to_op="ARIMA Trainer" to_port="example set"/>
+      <connect from_op="ARIMA Trainer" from_port="forecast model" to_op="Apply Forecast" to_port="forecast model"/>
+      <connect from_op="Apply Forecast" from_port="example set" to_op="Write CSV" to_port="input"/>
+      <connect from_op="Write CSV" from_port="through" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+    </process>
+  </operator>
+</process>
